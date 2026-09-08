@@ -13,5 +13,8 @@ dependencies:
   - snakemake>=8.0
   - r-base>=4.3
   - bioconductor-deseq2
+  - bioconductor-annotationdbi
+  - bioconductor-org.hs.eg.db
+  - bioconductor-clusterprofiler
   - r-ggplot2
   - r-pheatmap
