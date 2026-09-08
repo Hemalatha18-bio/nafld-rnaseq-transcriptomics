@@ -4,7 +4,7 @@ Reproducible analysis of **public human liver RNA-seq data** from NCBI GEO acces
 
 ## Why this project
 
-This repository is the real-public-data component of my bioinformatics portfolio. It demonstrates how I move from a published GEO accession to validated sample metadata, a gene-count matrix, RNA-seq QC, count-aware differential expression, FDR-controlled results, figures, tests, CI, and a reproducible workflow.
+This repository is the real-public-data component of my bioinformatics portfolio. It demonstrates how I move from a published GEO accession to validated sample metadata, a gene-count matrix, RNA-seq QC, count-aware differential expression, FDR-controlled results, pathway analysis, figures, tests, CI, and a reproducible workflow.
 
 ## Dataset
 
@@ -42,6 +42,11 @@ GEO GSE135251
 
 count matrix + metadata
    │
+   ├── dataset audit
+   │   ├── expected 216-sample check
+   │   ├── count/metadata sample consistency
+   │   └── disease and fibrosis-group summaries
+   │
    ├── exploratory QC
    │   ├── library-size diagnostics
    │   ├── expression filtering
@@ -51,12 +56,15 @@ count matrix + metadata
        ├── F3–F4 vs F0–F1
        ├── Benjamini-Hochberg FDR
        ├── normalized counts
-       └── volcano plot + machine-readable results
+       ├── volcano plot
+       └── GO Biological Process enrichment
 ```
 
 ### Important statistical boundary
 
 The log2-CPM transform is used **only for exploratory QC/PCA**. Differential expression is performed on the original integer counts with **DESeq2**, so the inferential analysis remains count-aware.
+
+GO enrichment is downstream of the DESeq2 FDR-filtered gene set. Ensembl gene IDs are mapped to Entrez IDs with `org.Hs.eg.db`, and the tested DESeq2 genes are used as the enrichment background rather than the whole genome.
 
 ## Repository structure
 
@@ -71,11 +79,14 @@ nafld-rnaseq-transcriptomics/
 │   ├── download_geo.py
 │   ├── parse_geo_soft.py
 │   ├── build_count_matrix.py
+│   ├── audit_dataset.py
 │   ├── qc_counts.py
-│   └── differential_expression.R
+│   ├── differential_expression.R
+│   └── pathway_enrichment.R
 ├── tests/
 │   ├── test_parse_geo_soft.py
 │   ├── test_build_count_matrix.py
+│   ├── test_audit_dataset.py
 │   └── test_qc_counts.py
 ├── workflow/Snakefile
 ├── environment.yml
@@ -100,7 +111,7 @@ Run the complete workflow:
 snakemake --snakefile workflow/Snakefile --cores 4
 ```
 
-The workflow downloads the public GEO inputs automatically, builds the count matrix and metadata, generates QC outputs, and runs the default DESeq2 fibrosis contrast.
+The workflow downloads the public GEO inputs automatically, builds the count matrix and metadata, validates the complete dataset, generates QC outputs, runs the default DESeq2 fibrosis contrast, and performs GO Biological Process enrichment.
 
 ### Run preprocessing tests only
 
@@ -111,9 +122,19 @@ pytest -q
 
 GitHub Actions runs the Python tests, compiles the scripts, and validates the Snakemake DAG on every pull request and push to `main`.
 
-## Data handling and reproducibility
+## Expected result layers
 
-The large GEO downloads and full generated count matrix are intentionally excluded from Git. They are reproducible upstream inputs that can be regenerated from the accession. Small result summaries and selected figures can be versioned after they are produced and reviewed.
+After a complete run, the versioned workflow produces:
+
+- `results/audit/` — cohort/sample consistency and fibrosis-group counts;
+- `results/qc/` — sample QC summaries and PCA coordinates;
+- `figures/qc/` — library-size and PCA figures;
+- `results/deseq2/` — all tested genes, FDR-significant genes, normalized counts, summary, and volcano plot;
+- `results/enrichment/` — Ensembl-to-Entrez mapping, GO BP enrichment table, summary, and figure.
+
+Large upstream data and the full generated count matrix stay excluded from Git because they are reproducible from GEO. Small reviewed summaries and selected figures can be committed after a full analysis run.
+
+## Data handling and reproducibility
 
 This repository begins from the **GEO-provided processed gene counts**, not from raw SRA FASTQ re-alignment. That boundary is explicit: upstream Trimmomatic/STAR/HTSeq processing is provenance reported by GEO, not code reproduced in this repository.
 
