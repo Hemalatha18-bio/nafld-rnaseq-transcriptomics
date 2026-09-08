@@ -4,6 +4,8 @@ rule all:
     input:
         "metadata/sample_metadata.tsv",
         "data/processed/count_matrix.tsv",
+        "results/audit/dataset_audit.tsv",
+        "results/audit/analysis_group_counts.tsv",
         "results/qc/qc_summary.tsv",
         "results/qc/sample_qc.tsv",
         "results/qc/pca_scores.tsv",
@@ -12,7 +14,10 @@ rule all:
         "results/deseq2/deseq2_summary.tsv",
         "results/deseq2/deseq2_all_results.tsv",
         "results/deseq2/deseq2_significant_fdr05_lfc1.tsv",
-        "results/deseq2/volcano_deseq2.png"
+        "results/deseq2/volcano_deseq2.png",
+        "results/enrichment/go_bp_enrichment.tsv",
+        "results/enrichment/go_bp_enrichment_summary.tsv",
+        "results/enrichment/go_bp_enrichment.png"
 
 rule download_geo:
     output:
@@ -37,6 +42,17 @@ rule build_count_matrix:
         "data/processed/count_matrix.tsv"
     shell:
         "python scripts/build_count_matrix.py --count-dir {input.counts} --output {output}"
+
+rule audit_dataset:
+    input:
+        counts="data/processed/count_matrix.tsv",
+        metadata="metadata/sample_metadata.tsv"
+    output:
+        audit="results/audit/dataset_audit.tsv",
+        groups="results/audit/analysis_group_counts.tsv"
+    shell:
+        "python scripts/audit_dataset.py --count-matrix {input.counts} --metadata {input.metadata} "
+        "--output-dir results/audit --expected-samples 216"
 
 rule qc_counts:
     input:
@@ -65,3 +81,15 @@ rule differential_expression:
     shell:
         "Rscript scripts/differential_expression.R {input.counts} {input.metadata} results/deseq2 "
         "analysis_group NAFLD_F3_F4 NAFLD_F0_F1"
+
+rule pathway_enrichment:
+    input:
+        all_results="results/deseq2/deseq2_all_results.tsv",
+        significant="results/deseq2/deseq2_significant_fdr05_lfc1.tsv"
+    output:
+        enrichment="results/enrichment/go_bp_enrichment.tsv",
+        summary="results/enrichment/go_bp_enrichment_summary.tsv",
+        mapping="results/enrichment/ensembl_to_entrez_mapping.tsv",
+        figure="results/enrichment/go_bp_enrichment.png"
+    shell:
+        "Rscript scripts/pathway_enrichment.R {input.all_results} {input.significant} results/enrichment"
