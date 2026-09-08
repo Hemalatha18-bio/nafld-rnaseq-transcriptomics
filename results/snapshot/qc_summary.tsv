@@ -1,0 +1,7 @@
+metric	value
+samples	216.0
+genes_raw	64253.0
+genes_after_filter	18360.0
+median_library_size	24263621.5
+pca_pc1_variance_fraction	0.17059118947485238
+pca_pc2_variance_fraction	0.10116318304254546
