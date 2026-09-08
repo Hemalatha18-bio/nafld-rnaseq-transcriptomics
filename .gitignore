@@ -1,0 +1,28 @@
+# Public GEO downloads are reproducible and should not be committed wholesale.
+data/raw/
+data/processed/count_matrix.tsv
+metadata/raw/
+
+# Generated analysis outputs
+results/
+figures/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Snakemake
+.snakemake/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

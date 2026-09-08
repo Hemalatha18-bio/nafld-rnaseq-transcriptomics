@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this portfolio workflow, please cite the repository and the original GSE135251 study/data source."
+title: "NAFLD RNA-seq Transcriptomics — GSE135251"
+type: software
+authors:
+  - family-names: Ponnam
+    given-names: Hemalatha
+year: 2026
+repository-code: "https://github.com/Hemalatha18-bio/nafld-rnaseq-transcriptomics"
+keywords:
+  - bioinformatics
+  - RNA-seq
+  - transcriptomics
+  - NAFLD
+  - fibrosis
+  - GEO
+license: MIT

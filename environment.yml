@@ -1,0 +1,17 @@
+name: nafld-rnaseq
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy>=2.0
+  - pandas>=2.2
+  - scikit-learn>=1.5
+  - matplotlib>=3.9
+  - pytest>=8.0
+  - snakemake>=8.0
+  - r-base>=4.3
+  - bioconductor-deseq2
+  - r-ggplot2
+  - r-pheatmap
