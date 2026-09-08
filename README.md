@@ -20,11 +20,44 @@ The public processed files are gene-level count tables. GEO sample records repor
 
 **How does the liver transcriptome change as fibrosis severity increases across NAFLD?**
 
-The default differential-expression contrast is:
+The primary differential-expression contrast is:
 
 **NAFLD fibrosis F3–F4 vs NAFLD fibrosis F0–F1**
 
 Controls and F2 samples are retained in the parsed metadata and can be used for additional comparisons. The repository preserves the original GEO fields and derives a separate `analysis_group` only for transparent downstream grouping.
+
+## Verified public-data results
+
+The full versioned workflow was executed against the public GEO processed counts in GitHub Actions and completed successfully.
+
+### Cohort and QC audit
+
+- **216 samples** were recovered and matched between the count matrix and parsed metadata.
+- The cohort contains **206 NAFLD samples and 10 controls**.
+- Derived analysis groups contain **85 F0–F1**, **53 F2**, **68 F3–F4**, and **10 control** samples.
+- The count matrix contains **64,253 raw gene rows**; **18,360 genes** passed the exploratory QC expression filter.
+- Median library size was approximately **24.3 million counts**.
+- In the exploratory PCA, PC1 and PC2 explained approximately **17.1%** and **10.1%** of variance, respectively.
+
+![PCA of filtered log2-CPM expression](figures/snapshot/pca_log2cpm.png)
+
+*Exploratory PCA uses filtered log2-CPM values only; inferential differential expression uses raw integer counts.*
+
+### Differential expression
+
+The DESeq2 F3–F4 vs F0–F1 contrast used **153 NAFLD samples**. After the DESeq2 expression filter, **17,973 genes** were tested and **551 genes** met both **Benjamini-Hochberg FDR < 0.05** and **|log2 fold change| ≥ 1**.
+
+![DESeq2 volcano plot](figures/snapshot/volcano_deseq2.png)
+
+A lightweight ranked result snapshot is committed under `results/snapshot/`; the full result table and normalized count matrix remain reproducible outputs rather than versioned large intermediates.
+
+### GO Biological Process enrichment
+
+Of the 551 significant Ensembl genes, **504 mapped to Entrez IDs**, and the enrichment analysis returned **247 GO Biological Process terms at FDR < 0.05**.
+
+The strongest enrichment signal was centered on **extracellular matrix / extracellular structure organization**. The leading `extracellular matrix organization` term showed approximately **4-fold enrichment** with an adjusted p-value of approximately **1.6 × 10⁻8** and included genes such as **FAP, COL1A1, COL1A2, MMP2, and TGFB2**. These results are consistent with a fibrosis-associated remodeling signal in the advanced-fibrosis group, while remaining an observational transcriptomic comparison rather than a causal claim.
+
+![GO Biological Process enrichment](figures/snapshot/go_bp_enrichment.png)
 
 ## Workflow
 
@@ -70,7 +103,9 @@ GO enrichment is downstream of the DESeq2 FDR-filtered gene set. Ensembl gene ID
 
 ```text
 nafld-rnaseq-transcriptomics/
-├── .github/workflows/ci.yml
+├── .github/workflows/
+│   ├── ci.yml
+│   └── public-data-analysis.yml
 ├── data/
 │   └── README.md
 ├── metadata/
@@ -83,6 +118,8 @@ nafld-rnaseq-transcriptomics/
 │   ├── qc_counts.py
 │   ├── differential_expression.R
 │   └── pathway_enrichment.R
+├── results/snapshot/
+├── figures/snapshot/
 ├── tests/
 │   ├── test_parse_geo_soft.py
 │   ├── test_build_count_matrix.py
@@ -120,19 +157,21 @@ python -m pip install -r requirements-dev.txt
 pytest -q
 ```
 
-GitHub Actions runs the Python tests, compiles the scripts, and validates the Snakemake DAG on every pull request and push to `main`.
+GitHub Actions runs the Python tests, compiles the scripts, and validates the Snakemake DAG on every pull request and push to `main`. A separate reproducible analysis workflow records the successful full public-data run and commits only a lightweight reviewed results snapshot.
 
-## Expected result layers
+## Committed results snapshot
 
-After a complete run, the versioned workflow produces:
+`results/snapshot/` contains small, recruiter-reviewable outputs from the successful public-data run, including:
 
-- `results/audit/` — cohort/sample consistency and fibrosis-group counts;
-- `results/qc/` — sample QC summaries and PCA coordinates;
-- `figures/qc/` — library-size and PCA figures;
-- `results/deseq2/` — all tested genes, FDR-significant genes, normalized counts, summary, and volcano plot;
-- `results/enrichment/` — Ensembl-to-Entrez mapping, GO BP enrichment table, summary, and figure.
+- dataset and analysis-group audit summaries;
+- QC summary metrics;
+- DESeq2 run summary;
+- top-ranked DESeq2 results;
+- GO enrichment summary and top terms.
 
-Large upstream data and the full generated count matrix stay excluded from Git because they are reproducible from GEO. Small reviewed summaries and selected figures can be committed after a full analysis run.
+`figures/snapshot/` contains the selected PCA, library-size, volcano, and GO enrichment figures.
+
+Large upstream downloads, the full gene × sample count matrix, the normalized count matrix, and large intermediate result tables remain excluded from Git because they are reproducible from the public accession and workflow.
 
 ## Data handling and reproducibility
 
@@ -140,7 +179,7 @@ This repository begins from the **GEO-provided processed gene counts**, not from
 
 ## Interpretation policy
 
-No gene, pathway, or performance result is presented as a finding unless it is produced by the versioned workflow from the public data. Software checks, example tests, and biological conclusions are kept clearly separate.
+Only results produced by the versioned workflow from the public GSE135251 data are described as findings here. The analysis demonstrates association with fibrosis severity; it does not establish causal mechanisms or clinical utility.
 
 ## Author
 

@@ -1,0 +1,6 @@
+metric	value
+tested_ensembl_genes	17973
+mapped_background_entrez_genes	15798
+significant_ensembl_genes	551
+mapped_significant_entrez_genes	504
+enriched_go_bp_terms_fdr05	247

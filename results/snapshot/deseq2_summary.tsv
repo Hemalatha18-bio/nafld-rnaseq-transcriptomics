@@ -1,0 +1,7 @@
+metric	value
+contrast_column	analysis_group
+numerator	NAFLD_F3_F4
+denominator	NAFLD_F0_F1
+samples_in_contrast	153
+genes_after_filter	17973
+significant_fdr05_abs_lfc1	551
