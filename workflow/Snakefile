@@ -1,0 +1,67 @@
+ACCESSION = "GSE135251"
+
+rule all:
+    input:
+        "metadata/sample_metadata.tsv",
+        "data/processed/count_matrix.tsv",
+        "results/qc/qc_summary.tsv",
+        "results/qc/sample_qc.tsv",
+        "results/qc/pca_scores.tsv",
+        "figures/qc/library_size_distribution.png",
+        "figures/qc/pca_log2cpm.png",
+        "results/deseq2/deseq2_summary.tsv",
+        "results/deseq2/deseq2_all_results.tsv",
+        "results/deseq2/deseq2_significant_fdr05_lfc1.tsv",
+        "results/deseq2/volcano_deseq2.png"
+
+rule download_geo:
+    output:
+        raw_tar=f"data/raw/{ACCESSION}_RAW.tar",
+        soft=f"metadata/raw/{ACCESSION}_family.soft.gz",
+        counts=directory("data/raw/counts")
+    shell:
+        "python scripts/download_geo.py --accession {ACCESSION} --raw-dir data/raw --metadata-dir metadata/raw"
+
+rule parse_metadata:
+    input:
+        "metadata/raw/GSE135251_family.soft.gz"
+    output:
+        "metadata/sample_metadata.tsv"
+    shell:
+        "python scripts/parse_geo_soft.py --soft {input} --output {output}"
+
+rule build_count_matrix:
+    input:
+        counts="data/raw/counts"
+    output:
+        "data/processed/count_matrix.tsv"
+    shell:
+        "python scripts/build_count_matrix.py --count-dir {input.counts} --output {output}"
+
+rule qc_counts:
+    input:
+        counts="data/processed/count_matrix.tsv",
+        metadata="metadata/sample_metadata.tsv"
+    output:
+        summary="results/qc/qc_summary.tsv",
+        samples="results/qc/sample_qc.tsv",
+        pca="results/qc/pca_scores.tsv",
+        library_figure="figures/qc/library_size_distribution.png",
+        pca_figure="figures/qc/pca_log2cpm.png"
+    shell:
+        "python scripts/qc_counts.py --count-matrix {input.counts} --metadata {input.metadata} "
+        "--results-dir results/qc --figures-dir figures/qc"
+
+rule differential_expression:
+    input:
+        counts="data/processed/count_matrix.tsv",
+        metadata="metadata/sample_metadata.tsv"
+    output:
+        summary="results/deseq2/deseq2_summary.tsv",
+        all_results="results/deseq2/deseq2_all_results.tsv",
+        significant="results/deseq2/deseq2_significant_fdr05_lfc1.tsv",
+        normalized="results/deseq2/deseq2_normalized_counts.tsv",
+        volcano="results/deseq2/volcano_deseq2.png"
+    shell:
+        "Rscript scripts/differential_expression.R {input.counts} {input.metadata} results/deseq2 "
+        "analysis_group NAFLD_F3_F4 NAFLD_F0_F1"
