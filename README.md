@@ -1,5 +1,7 @@
 # NAFLD RNA-seq Transcriptomics — GSE135251
 
+[![CI](https://github.com/Hemalatha18-bio/nafld-rnaseq-transcriptomics/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Hemalatha18-bio/nafld-rnaseq-transcriptomics/actions/workflows/ci.yml)
+
 Reproducible analysis of **public human liver RNA-seq data** from NCBI GEO accession **GSE135251**, focused on transcriptomic changes across NAFLD fibrosis severity.
 
 ## At a glance
