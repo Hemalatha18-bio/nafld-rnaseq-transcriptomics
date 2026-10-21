@@ -2,6 +2,26 @@
 
 Reproducible analysis of **public human liver RNA-seq data** from NCBI GEO accession **GSE135251**, focused on transcriptomic changes across NAFLD fibrosis severity.
 
+## At a glance
+
+| | |
+| --- | --- |
+| **Research question** | Which liver gene-expression changes are associated with advanced versus mild NAFLD fibrosis? |
+| **Source** | [NCBI GEO GSE135251](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE135251), public processed gene counts |
+| **Cohort** | 216 samples in the full dataset; 153 NAFLD samples in the F3–F4 vs F0–F1 comparison |
+| **Primary analysis** | DESeq2 on raw integer counts; Benjamini–Hochberg multiple-testing correction |
+| **Key result** | 551 genes at FDR < 0.05 and absolute log2 fold change ≥ 1 |
+| **Pathway signal** | Extracellular-matrix / extracellular-structure organization |
+| **Reproducibility** | Conda + Snakemake, automated tests, CI, and committed lightweight results snapshots |
+
+**Explore:** [Results summary](results/snapshot/) · [Figures](figures/snapshot/) · [Workflow](workflow/Snakefile) · [Reproduction instructions](#reproduce-the-analysis)
+
+### Results preview
+
+[![Volcano plot of fibrosis contrast](figures/snapshot/volcano_deseq2.png)](figures/snapshot/volcano_deseq2.png)
+
+*DESeq2 comparison of advanced (F3–F4) versus mild (F0–F1) fibrosis. Observational association, not a causal or clinical prediction claim.*
+
 ## Why this project
 
 This repository is the real-public-data component of my bioinformatics portfolio. It demonstrates how I move from a published GEO accession to validated sample metadata, a gene-count matrix, RNA-seq QC, count-aware differential expression, FDR-controlled results, pathway analysis, figures, tests, CI, and a reproducible workflow.
